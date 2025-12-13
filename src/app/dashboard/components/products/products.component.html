@@ -1,0 +1,385 @@
+<div class="p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Products Management</h1>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="border-b border-gray-200 mb-6">
+    <nav class="-mb-px flex space-x-8">
+      <button
+        (click)="activeTab = 'products'"
+        [class]="activeTab === 'products' 
+          ? 'border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm' 
+          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'">
+        Products
+      </button>
+      <button
+        (click)="activeTab = 'brands'"
+        [class]="activeTab === 'brands' 
+          ? 'border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm' 
+          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'">
+        Brands
+      </button>
+      <button
+        (click)="activeTab = 'categories'"
+        [class]="activeTab === 'categories' 
+          ? 'border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm' 
+          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'">
+        Categories
+      </button>
+    </nav>
+  </div>
+
+  <!-- Products Tab -->
+  <div *ngIf="activeTab === 'products'">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-semibold text-gray-700">Products</h2>
+      <button (click)="toggleForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+        {{ showForm ? 'Cancel' : 'Add New Product' }}
+      </button>
+    </div>
+
+    <!-- Product Form -->
+    <div *ngIf="showForm" class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 mb-6">
+      <div class="mb-6 pb-4 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-800">{{ isEditing ? 'Edit Product' : 'Add New Product' }}</h2>
+        <p class="text-sm text-gray-500 mt-1">{{ isEditing ? 'Update product information' : 'Fill in the details to add a new product' }}</p>
+      </div>
+      
+      <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Product Name -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Product Name <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              formControlName="perfume_name" 
+              placeholder="Enter product name"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
+              [class.border-red-300]="productForm.get('perfume_name')?.invalid && productForm.get('perfume_name')?.touched">
+            <p *ngIf="productForm.get('perfume_name')?.invalid && productForm.get('perfume_name')?.touched" class="text-xs text-red-500 mt-1">
+              Product name is required
+            </p>
+          </div>
+
+          <!-- Brand -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Brand <span class="text-red-500">*</span>
+            </label>
+            <select 
+              formControlName="brand_id" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white appearance-none cursor-pointer"
+              [class.border-red-300]="productForm.get('brand_id')?.invalid && productForm.get('brand_id')?.touched">
+              <option value="" disabled>Select a brand</option>
+              <option *ngFor="let brand of brands" [value]="brand.brand_id">{{brand.brand_name}}</option>
+            </select>
+            <p *ngIf="productForm.get('brand_id')?.invalid && productForm.get('brand_id')?.touched" class="text-xs text-red-500 mt-1">
+              Please select a brand
+            </p>
+          </div>
+
+          <!-- Category -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Category <span class="text-red-500">*</span>
+            </label>
+            <select 
+              formControlName="category_id" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white appearance-none cursor-pointer"
+              [class.border-red-300]="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched">
+              <option value="" disabled>Select a category</option>
+              <option *ngFor="let category of categories" [value]="category.category_id">{{category.category_name}}</option>
+            </select>
+            <p *ngIf="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched" class="text-xs text-red-500 mt-1">
+              Please select a category
+            </p>
+          </div>
+
+          <!-- Price -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Price ($) <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">$</span>
+              <input 
+                type="number" 
+                step="0.01" 
+                formControlName="price" 
+                placeholder="0.00"
+                class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
+                [class.border-red-300]="productForm.get('price')?.invalid && productForm.get('price')?.touched">
+            </div>
+            <p *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched" class="text-xs text-red-500 mt-1">
+              Please enter a valid price
+            </p>
+          </div>
+
+          <!-- Size -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Size (ml) <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input 
+                type="number" 
+                formControlName="size_ml" 
+                placeholder="e.g., 50, 100"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
+                [class.border-red-300]="productForm.get('size_ml')?.invalid && productForm.get('size_ml')?.touched">
+              <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm font-medium">ml</span>
+            </div>
+            <p *ngIf="productForm.get('size_ml')?.invalid && productForm.get('size_ml')?.touched" class="text-xs text-red-500 mt-1">
+              Please enter a valid size
+            </p>
+          </div>
+
+          <!-- Stock -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Stock <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="number" 
+              formControlName="stock" 
+              placeholder="Enter stock quantity"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
+              [class.border-red-300]="productForm.get('stock')?.invalid && productForm.get('stock')?.touched">
+            <p *ngIf="productForm.get('stock')?.invalid && productForm.get('stock')?.touched" class="text-xs text-red-500 mt-1">
+              Please enter a valid stock quantity
+            </p>
+          </div>
+
+          <!-- Description -->
+          <div class="md:col-span-2 space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Description
+            </label>
+            <textarea 
+              formControlName="description" 
+              rows="4" 
+              placeholder="Enter product description..."
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400 resize-none"></textarea>
+          </div>
+
+          <!-- Image URL -->
+          <div class="md:col-span-2 space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Image URL
+            </label>
+            <div class="flex items-center space-x-3">
+              <input 
+                type="text" 
+                formControlName="image_url" 
+                placeholder="https://example.com/image.jpg"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400">
+              <div *ngIf="productForm.get('image_url')?.value" class="flex-shrink-0">
+                <img [src]="productForm.get('image_url')?.value" alt="Preview" class="h-12 w-12 rounded-lg object-cover border border-gray-200">
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Enter the URL of the product image</p>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="mt-8 pt-6 border-t border-gray-200 flex items-center justify-end gap-4">
+          <button 
+            type="button" 
+            (click)="resetForm()" 
+            class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            [disabled]="!productForm.valid" 
+            class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400 shadow-sm hover:shadow-md">
+            <span *ngIf="!isEditing">Create Product</span>
+            <span *ngIf="isEditing">Update Product</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Products Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let product of products">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <!-- <div class="flex-shrink-0 h-10 w-10">
+                  <img *ngIf="product.image_url" [src]="product.image_url" alt="" class="h-10 w-10 rounded-full">
+                  <div *ngIf="!product.image_url" class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span class="text-gray-500 text-xs">No image</span>
+                  </div>
+                </div> -->
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-gray-900">{{product.perfume_name}}</div>
+                  <div class="text-sm text-gray-500">{{product.size_ml}}ml</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{product.brand?.brand_name}}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                    [ngClass]="{
+                      'bg-blue-100 text-blue-800': product.category_name === 'Men',
+                      'bg-pink-100 text-pink-800': product.category_name === 'Women',
+                      'bg-green-100 text-green-800': product.category_name === 'Unisex'
+                    }">
+                {{product.category?.category_name}}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{product.price}}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <span [ngClass]="{
+                'bg-red-100 text-red-800': product.stock < 10,
+                'bg-yellow-100 text-yellow-800': product.stock >= 10 && product.stock < 20,
+                'bg-green-100 text-green-800': product.stock >= 20
+              }" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                {{product.stock}}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <button (click)="editProduct(product)" class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+              <button (click)="deleteProduct(product.perfume_id)" class="text-red-600 hover:text-red-900">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Brands Tab -->
+  <div *ngIf="activeTab === 'brands'">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-semibold text-gray-700">Brands</h2>
+      <button (click)="toggleBrandForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+        {{ showBrandForm ? 'Cancel' : 'Add New Brand' }}
+      </button>
+    </div>
+
+    <!-- Brand Form -->
+    <div *ngIf="showBrandForm" class="bg-white rounded-lg shadow p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">{{ isEditingBrand ? 'Edit Brand' : 'Add New Brand' }}</h2>
+      <form [formGroup]="brandForm" (ngSubmit)="onSubmitBrand()">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Brand Name</label>
+          <input 
+          type="text" 
+          formControlName="brand_name" 
+          placeholder="Enter brand name"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
+          [class.border-red-300]="brandForm.get('brand_name')?.invalid && brandForm.get('brand_name')?.touched">
+        <p *ngIf="brandForm.get('brand_name')?.invalid && brandForm.get('brand_name')?.touched" class="text-xs text-red-500 mt-1">
+          Brand name is required
+        </p>
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" [disabled]="!brandForm.valid" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400">
+            {{ isEditingBrand ? 'Update Brand' : 'Create Brand' }}
+          </button>
+          <button type="button" (click)="resetBrandForm()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Brands Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand Name</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let brand of brands">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{brand.brand_id}}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{brand.brand_name}}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <button (click)="editBrand(brand)" class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+              <button (click)="deleteBrand(brand.brand_id)" class="text-red-600 hover:text-red-900">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Categories Tab -->
+  <div *ngIf="activeTab === 'categories'">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-semibold text-gray-700">Categories</h2>
+      <button (click)="toggleCategoryForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+        {{ showCategoryForm ? 'Cancel' : 'Add New Category' }}
+      </button>
+    </div>
+
+    <!-- Category Form -->
+    <div *ngIf="showCategoryForm" class="bg-white rounded-lg shadow p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">{{ isEditingCategory ? 'Edit Category' : 'Add New Category' }}</h2>
+      <form [formGroup]="categoryForm" (ngSubmit)="onSubmitCategory()">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Category Name</label>
+          <input 
+          type="text" 
+          formControlName="category_name" 
+          placeholder="Enter product name"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
+          [class.border-red-300]="categoryForm.get('category_name')?.invalid && categoryForm.get('category_name')?.touched">
+        <p *ngIf="categoryForm.get('category_name')?.invalid && categoryForm.get('category_name')?.touched" class="text-xs text-red-500 mt-1">
+          Category name is required
+        </p>
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" [disabled]="!categoryForm.valid" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400">
+            {{ isEditingCategory ? 'Update Category' : 'Create Category' }}
+          </button>
+          <button type="button" (click)="resetCategoryForm()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Categories Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category Name</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let category of categories">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{category.category_id}}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{category.category_name}}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <button (click)="editCategory(category)" class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+              <button (click)="deleteCategory(category.category_id)" class="text-red-600 hover:text-red-900">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

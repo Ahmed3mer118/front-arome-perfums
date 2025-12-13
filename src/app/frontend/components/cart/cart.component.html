@@ -1,0 +1,114 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-4">
+    <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-8">Shopping Cart</h1>
+
+    <div *ngIf="loading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+    </div>
+
+    <div *ngIf="!loading && cartItems.length > 0" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Cart Items -->
+      <div class="lg:col-span-2 space-y-4">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">Items ({{ cartItems.length }})</h2>
+            <button (click)="clearCart()" 
+                    class="text-red-600 hover:text-red-700 text-sm font-medium">
+              Clear Cart
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <div *ngFor="let item of cartItems" 
+                 class="flex flex-col sm:flex-row gap-4 p-4 border border-gray-200 rounded-lg">
+              <img [src]="getProductImage(item.perfume?.image_url)" 
+                   [alt]="item.perfume?.perfume_name"
+                   class="w-full sm:w-24 h-24 object-cover rounded-lg">
+              
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-800 mb-1">{{ item.perfume?.perfume_name }}</h3>
+                <p class="text-sm text-gray-600 mb-2" *ngIf="item.perfume?.brand?.brand_name">
+                  {{ item.perfume?.brand?.brand_name}}
+                </p>
+                <p class="text-lg font-bold text-purple-600">${{ item.price }}</p>
+              </div>
+
+              <div class="flex flex-col sm:flex-row items-center gap-4">
+                <div class="flex items-center gap-2">
+                  <button (click)="updateQuantity(item, item.quantity - 1)" 
+                          class="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    -
+                  </button>
+                  <span class="w-12 text-center font-semibold">{{ item.quantity }}</span>
+                  <button (click)="updateQuantity(item, item.quantity + 1)" 
+                          class="w-8 h-8 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    +
+                  </button>
+                </div>
+                
+                <div class="text-right">
+                  <p class="font-semibold text-gray-800">
+                    ${{ (item.price * item.quantity).toFixed(2) }}
+                  </p>
+                </div>
+
+                <button (click)="removeItem(item)" 
+                        class="text-red-600 hover:text-red-700 p-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">Order Summary</h2>
+          
+          <div class="space-y-3 mb-6">
+            <div class="flex justify-between text-gray-600">
+              <span>Subtotal</span>
+              <span>${{ total.toFixed(2) }}</span>
+            </div>
+            <div class="flex justify-between text-gray-600">
+              <span>Shipping</span>
+              <span class="text-green-600">Free</span>
+            </div>
+            <div class="border-t border-gray-200 pt-3">
+              <div class="flex justify-between text-lg font-bold text-gray-800">
+                <span>Total</span>
+                <span class="text-purple-600">${{ total.toFixed(2) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <button (click)="proceedToCheckout()" 
+                  class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all mb-4">
+            Proceed to Checkout
+          </button>
+
+          <a routerLink="/products" 
+             class="block text-center text-purple-600 hover:text-purple-700 font-medium">
+            Continue Shopping
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!loading && cartItems.length === 0" class="text-center py-12">
+      <svg class="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+      </svg>
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">Your cart is empty</h2>
+      <p class="text-gray-600 mb-6">Start adding some products to your cart!</p>
+      <a routerLink="/products" 
+         class="inline-block px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all">
+        Browse Products
+      </a>
+    </div>
+  </div>
+</div>

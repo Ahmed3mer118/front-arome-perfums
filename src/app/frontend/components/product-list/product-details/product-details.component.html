@@ -1,0 +1,94 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-4">
+    <div *ngIf="loading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+    </div>
+
+    <div *ngIf="!loading && product" class="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+        <!-- Product Image -->
+        <div>
+          <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
+            <img [src]="selectedImage || getProductImage(product.image_url)" 
+                 [alt]="product.perfume_name"
+                 class="w-full h-full object-cover">
+          </div>
+        </div>
+
+        <!-- Product Info -->
+        <div>
+          <a routerLink="/products" class="text-purple-600 hover:text-purple-700 mb-4 inline-block">
+            ← Back to Products
+          </a>
+          
+          <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{{ product.perfume_name }}</h1>
+          
+          <div class="mb-4">
+            <span *ngIf="product.brand?.brand_name" class="text-lg text-gray-600">
+              Brand: <span class="font-semibold">{{ product.brand?.brand_name }}</span>
+            </span>
+          </div>
+
+          <div class="mb-6">
+            <span class="text-4xl font-bold text-purple-600">${{ product.price }}</span>
+          </div>
+
+          <div class="mb-6">
+            <p class="text-gray-700 leading-relaxed" *ngIf="product.description">
+              {{ product.description }}
+            </p>
+          </div>
+
+          <!-- Stock Status -->
+          <div class="mb-6">
+            <span *ngIf="product.stock > 0" class="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-lg font-semibold">
+              In Stock ({{ product.stock }} available)
+            </span>
+            <span *ngIf="product.stock === 0" class="inline-block bg-red-100 text-red-800 px-4 py-2 rounded-lg font-semibold">
+              Out of Stock
+            </span>
+          </div>
+
+          <!-- Quantity Selector -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+            <div class="flex items-center gap-4">
+              <button (click)="decreaseQuantity()" 
+                      [disabled]="quantity <= 1"
+                      class="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                -
+              </button>
+              <span class="text-xl font-semibold w-12 text-center">{{ quantity }}</span>
+              <button (click)="increaseQuantity()" 
+                      [disabled]="product.stock === 0 || quantity >= product.stock"
+                      class="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                +
+              </button>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4">
+            <button (click)="addToCart()" 
+                    [disabled]="product.stock === 0"
+                    class="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              Add to Cart
+            </button>
+            <button (click)="buyNow()" 
+                    [disabled]="product.stock === 0"
+                    class="flex-1 px-6 py-3 bg-white border-2 border-purple-600 text-purple-600 rounded-lg font-semibold hover:bg-purple-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              Buy Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!loading && !product" class="text-center py-12">
+      <p class="text-gray-600 text-lg">Product not found.</p>
+      <a routerLink="/products" class="text-purple-600 hover:text-purple-700 mt-4 inline-block">
+        Browse Products
+      </a>
+    </div>
+  </div>
+</div>
