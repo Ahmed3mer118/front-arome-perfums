@@ -54,7 +54,7 @@ Update the API URL in `src/environments/environment.ts`:
 ```typescript
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api'
+  apiUrl: 'https://back-end-aromeperfums-production.up.railway.app/api'
 };
 ```
 
